@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/venv/
+*.db
+backend/medbook.db
+*.sqlite3
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+!.env.example
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+.DS_Store
+
+# IDE / Gemini Antigravity
+.gemini/
+.idea/
+.vscode/
