@@ -1,3 +1,4 @@
+
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
@@ -82,6 +83,9 @@ class Appointment(db.Model):
     time = db.Column(db.String(10), nullable=False) # "HH:MM"
     reason = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), nullable=False, default='pending') # 'pending', 'confirmed', 'cancelled', 'completed'
+    status_note = db.Column(db.Text, nullable=True)
+    rescheduled_from = db.Column(db.String(20), nullable=True)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -99,6 +103,61 @@ class Appointment(db.Model):
             "time": self.time,
             "reason": self.reason,
             "status": self.status,
+            "status_note": self.status_note,
+            "rescheduled_from": self.rescheduled_from,
+            "created_at": self.created_at.isoformat() if self.created_at else None
+        }
+
+
+class DoctorBlackout(db.Model):
+    __tablename__ = 'doctor_blackouts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctors.id'), nullable=False, index=True)
+    start_date = db.Column(db.String(10), nullable=False)
+    end_date = db.Column(db.String(10), nullable=False)
+    start_time = db.Column(db.String(5), nullable=True)
+    end_time = db.Column(db.String(5), nullable=True)
+    category = db.Column(db.String(30), default='leave')
+    note = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    doctor = db.relationship('Doctor', backref=db.backref('blackouts', cascade="all, delete-orphan"))
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "doctor_id": self.doctor_id,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "category": self.category,
+            "note": self.note or "",
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "all_day": self.start_time is None
+        }
+
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=True)
+    type = db.Column(db.String(30), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "appointment_id": self.appointment_id,
+            "type": self.type,
+            "message": self.message,
+            "is_read": self.is_read,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 
