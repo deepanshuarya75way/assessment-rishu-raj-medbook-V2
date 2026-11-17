@@ -57,12 +57,16 @@ def create_app(config_class=Config):
     from routes.auth import auth_bp
     from routes.doctors import doctors_bp
     from routes.appointments import appointments_bp
+    from routes.availability import availability_bp
     from routes.assistant import assistant_bp
+    from routes.notifications import notifications_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(doctors_bp, url_prefix="/api/doctors")
     app.register_blueprint(appointments_bp, url_prefix="/api/appointments")
+    app.register_blueprint(availability_bp, url_prefix="/api")
     app.register_blueprint(assistant_bp, url_prefix="/api/assistant")
+    app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
 
     @app.route("/api/health", methods=["GET"])
     def health_check():
